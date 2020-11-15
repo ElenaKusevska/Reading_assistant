@@ -1,6 +1,4 @@
-from flask import Flask, render_template, request, session, url_for, jsonify, Response
-from flask_session import Session
-from flask_cors import CORS
+from flask import Flask, render_template, request, url_for, jsonify
 
 import os
 import sys
@@ -8,10 +6,6 @@ import shutil
 import random
 
 app = Flask(__name__)
-SESSION_TYPE = 'filesystem'
-app.config.from_object(__name__)
-Session(app)
-CORS(app)
 
 # First view of web app (when it's loaded for the first time):
 @app.route("/", methods=['GET'])
