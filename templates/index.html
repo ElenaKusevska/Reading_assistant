@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>test upload</title>
+        <link href="{{ url_for('static',filename='styles/styles.css') }}?q={{rq}}" 
+        rel="stylesheet" type="text/css"/>
+        <script src="{{ url_for('static',filename='script.js') }}?q={{rq}}"/></script>
+    </head>
+
+    <body>   
+        <h1> - - - File Upload using XMLHttpRequest in js with Flask - - - </h1>
+
+        <div class="div1">
+            <button class="buttons" onclick="click_function();"> Choose File </button> 
+            <p class="p1" id="uploaded_file_name" style="color: #636363;"> 
+                {{uploaded_file_name}} </p>
+
+            <form enctype=multipart/form-data method="post" name=form1
+            onsubmit="return submit_form_request();">
+                <input type=file name="file" hidden
+                id="get_file" accept=".txt" 
+                onchange="on_file_upload();">
+                <input type="submit" 
+                value="Upload File" name="submit">
+            </form>
+        </div>
+
+        <div class="div2">
+            <p id="uploaded_file_text"> File text goes here </p>
+        </div>
+    </body>
+</html>
