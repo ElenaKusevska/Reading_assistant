@@ -21,11 +21,11 @@ function submit_form_request() {
     }
 
     if (test_submit) {
-        // Initialize new request
+        // Initialize new request:
         const request = new XMLHttpRequest();
         request.open('POST', '/')
 
-        // Callback function for when request completes
+        // Callback function for when request completes:
         request.onload = function() {
             const data = JSON.parse(request.responseText);
             if (data.success) {
@@ -35,6 +35,7 @@ function submit_form_request() {
             }
         }
 
+        // Create FormData and send request:
         var form = document.forms.namedItem("form1");
         var formData = new FormData(form);
         //let formData = new FormData(document.forms.form1);
