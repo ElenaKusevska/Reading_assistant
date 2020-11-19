@@ -45,10 +45,11 @@ div {
 
 .div2 {
     background-color: #945D60;
-    height: 50%;
+    height: 60%;
     overflow: scroll;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    font-family: Avantgarde, TeX Gyre Adventor, URW Gothic L, sans-serif;
 }
 
 .div2::-webkit-scrollbar {
