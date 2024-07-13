@@ -5,7 +5,6 @@ function click_function() {
 
 function on_file_upload() {
     fu = document.getElementById("get_file").value;
-    document.getElementById("uploaded_file_name").style.color = "#3C3C3C";
     document.getElementById("uploaded_file_name").innerHTML = fu.split("\\").pop();
 }
 
@@ -30,6 +29,7 @@ function submit_form_request() {
             const data = JSON.parse(request.responseText);
             if (data.success) {
                 document.getElementById("uploaded_file_text").innerHTML = data.file_text;
+                document.getElementById('audio_player').src = "http://127.0.0.1:5000/static/" + data.audio_file +"?q=300"
             } else {
                 document.getElementById("uploaded_file_text").innerHTML = "ERROR";
             }
@@ -45,5 +45,9 @@ function submit_form_request() {
         return false;
     }
 
+}
+
+function play_audio() {
+    document.getElementById('audio_player').play();
 }
 

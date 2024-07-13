@@ -8,12 +8,12 @@
     </head>
 
     <body>   
-        <h1> - - - File Upload using XMLHttpRequest in js with Flask - - - </h1>
+        <h1> - - - Reading assistant for txt and pdf files - - - </h1>
 
         <div class="div1">
             <button class="buttons" onclick="click_function();"> Choose File </button> 
-            <p class="p1" id="uploaded_file_name" style="color: #636363;"> 
-                {{uploaded_file_name}} </p>
+            <p class="p1" id="uploaded_file_name"> 
+                {{uploaded_file_name}} </p> 
 
             <form enctype=multipart/form-data method="post" name=form1
             onsubmit="return submit_form_request();">
@@ -23,6 +23,12 @@
                 <input type="submit" 
                 value="Upload File" name="submit">
             </form>
+            <p class="p1" > 0 </p>
+            <button class="buttons" onclick="play_audio();"> Play </button>
+
+            <audio hidden src="{{ url_for('static',filename='welcome.mp3') }}?q={{rq}}" id="audio_player" controls>
+
+            </audio>
         </div>
 
         <div class="div2">

@@ -4,6 +4,9 @@ import os
 import sys
 import shutil
 import random
+import time
+from gtts import gTTS
+import vlc
 
 app = Flask(__name__)
 
@@ -41,12 +44,18 @@ def upload():
         uploaded_file=open(uploaded_file_path, "r")
 
         file_lines = []
+        audio_lines = []
         for line in uploaded_file:
             file_lines.append(line + "<br>")
+            audio_lines.append(line)
         file_text = " ".join(file_lines)
+        audio_text = " ".join(audio_lines)
         print(file_text)
 
-        return jsonify({"success": True, "file_text": file_text})
+        myobj = gTTS(text=audio_text, lang='en', slow=False)
+        myobj.save(os.getcwd() + "/welcome.mp3")
+
+        return jsonify({"success": True, "audio_file": "welcome.mp3", "file_text": file_text})
 
     else:
         return jsonify({"success": False})
