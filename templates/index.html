@@ -18,13 +18,16 @@
             <form enctype=multipart/form-data method="post" name=form1
             onsubmit="return submit_form_request();">
                 <input type=file name="file" hidden
-                id="get_file" accept=".txt" 
+                id="get_file" accept=".txt,.pdf" 
                 onchange="on_file_upload();">
                 <input type="submit" 
                 value="Upload File" name="submit">
             </form>
+
             <p class="p1" > 0 </p>
+
             <button class="buttons" onclick="play_audio();"> Play </button>
+            <button class="buttons" onclick="pause_audio();"> Pause </button>
 
             <audio hidden src="{{ url_for('static',filename='welcome.mp3') }}?q={{rq}}" id="audio_player" controls>
 

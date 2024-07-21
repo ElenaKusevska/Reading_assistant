@@ -6,7 +6,8 @@ import shutil
 import random
 import time
 from gtts import gTTS
-import vlc
+from PIL import Image
+import pymupdf
 
 app = Flask(__name__)
 
@@ -40,22 +41,17 @@ def upload():
             uploaded_file_name)
         uploaded_file.save(uploaded_file_path)
 
-        # Read the file:
-        uploaded_file=open(uploaded_file_path, "r")
+        if ".txt" in uploaded_file_name:
+            file_text, audio_text = parse_txt_file(uploaded_file_path)
+        elif ".pdf" in uploaded_file_name:
+            file_text, audio_text = parse_pdf_file(uploaded_file_path)
 
-        file_lines = []
-        audio_lines = []
-        for line in uploaded_file:
-            file_lines.append(line + "<br>")
-            audio_lines.append(line)
-        file_text = " ".join(file_lines)
-        audio_text = " ".join(audio_lines)
-        print(file_text)
+        
 
         myobj = gTTS(text=audio_text, lang='en', slow=False)
-        myobj.save(os.getcwd() + "/welcome.mp3")
+        myobj.save(os.getcwd() + url_for('static', filename='audio.mp3'))
 
-        return jsonify({"success": True, "audio_file": "welcome.mp3", "file_text": file_text})
+        return jsonify({"success": True, "audio_file": "audio.mp3", "file_text": file_text})
 
     else:
         return jsonify({"success": False})
@@ -68,6 +64,52 @@ def clear_directory(dir_path):
             os.remove(athings_path)
         elif os.path.isdir(athings_path):
             shutil.rmtree(athings_path)
+
+
+def parse_txt_file(uploaded_file_path):
+
+    # Read the file:
+    uploaded_file=open(uploaded_file_path, "r")
+
+    file_lines = []
+    audio_lines = []
+    for line in uploaded_file:
+        file_lines.append(line + "<br>")
+        audio_lines.append(line)
+    file_text = " ".join(file_lines)
+    audio_text = " ".join(audio_lines)
+    print(file_text)
+
+    return file_text, audio_text
+
+def parse_pdf_file(uploaded_file_path):
+    pdf = pymupdf.open(uploaded_file_path)
+
+    print("pdf file length", len(pdf))
+    page = pdf[0]
+
+    doc_order = []
+    audio_lines = []
+
+    blocks = page.get_text("dict")["blocks"]
+    for b in blocks:  # iterate through the text blocks\,
+        if "ext" in b:
+            if b["ext"] == "jpeg":
+                doc_order.append("<p>" + str(s["bbox"]) + "image" + "</p>")
+                audio_lines.append("image")
+            else:
+                pass
+        elif "lines" in b:
+            for l in b["lines"]:  # iterate through the text lines
+                for s in l["spans"]:  # iterate through the text spans
+                    doc_order.append("<p>" + str(s["bbox"]) + " " + str(round(s["size"])) + " " + s["text"] + "</p>")
+                    audio_lines.append(s["text"])
+
+    file_text = " ".join(doc_order)
+    audio_text = " ".join(audio_lines)
+    print(file_text)
+
+    return file_text, audio_text
 
 
 

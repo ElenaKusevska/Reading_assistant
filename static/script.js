@@ -51,3 +51,7 @@ function play_audio() {
     document.getElementById('audio_player').play();
 }
 
+function pause_audio() {
+    document.getElementById('audio_player').pause();
+}
+
