@@ -43,15 +43,30 @@ def upload():
 
         if ".txt" in uploaded_file_name:
             file_text, audio_text = parse_txt_file(uploaded_file_path)
+
+            number_of_audio_files = 1
+            audiofilename = '1.mp3'
+            myobj = gTTS(text=audio_text, lang='en', slow=False)
+            myobj.save(os.getcwd() + url_for('static', filename=audiofilename))
         elif ".pdf" in uploaded_file_name:
-            file_text, audio_text = parse_pdf_file(uploaded_file_path)
+            file_text, audio_lines = parse_pdf_file(uploaded_file_path)
+
+            number_of_audio_files = len(audio_lines)
+            for i in range(0, number_of_audio_files):
+                audiofilename = f'{i}.mp3'
+                print(audio_lines[i])
+                try:
+                    myobj = gTTS(text=audio_lines[i], lang='en', slow=False)
+                    myobj.save(os.getcwd() + url_for('static', filename=audiofilename))
+                except Exception as e:
+                    print("Exception", e)
+                print("audio", i)
 
         
 
-        myobj = gTTS(text=audio_text, lang='en', slow=False)
-        myobj.save(os.getcwd() + url_for('static', filename='audio.mp3'))
+        
 
-        return jsonify({"success": True, "audio_file": "audio.mp3", "file_text": file_text})
+        return jsonify({"success": True, "audio_file": "1.mp3", "number_of_audio_files": number_of_audio_files, "file_text": file_text})
 
     else:
         return jsonify({"success": False})
@@ -88,28 +103,41 @@ def parse_pdf_file(uploaded_file_path):
     print("pdf file length", len(pdf))
     page = pdf[0]
 
+    image_files = []
+    images = page.get_images()
+    for image in images:
+        print(image)
+        xref = image[0]
+        base_image = pdf.extract_image(xref)
+        with open(os.getcwd() + url_for('static', filename=image[7]), 'wb') as f:
+            f.write(base_image['image'])
+        image_files.append(image[7])
+
     doc_order = []
     audio_lines = []
 
+    i_text = 0
+    i_images = 0
     blocks = page.get_text("dict")["blocks"]
-    for b in blocks:  # iterate through the text blocks\,
-        if "ext" in b:
-            if b["ext"] == "jpeg":
-                doc_order.append("<p>" + str(s["bbox"]) + "image" + "</p>")
-                audio_lines.append("image")
+    for block in blocks:  # iterate through the text blocks\,
+        if "ext" in block:
+            if block["ext"] == "jpeg":
+                doc_order.append(f"<img src=http://127.0.0.1:5000/static/{image_files[i_images]}>")
+                i_images = i_images + 1
             else:
                 pass
-        elif "lines" in b:
-            for l in b["lines"]:  # iterate through the text lines
+        elif "lines" in block:
+            for l in block["lines"]:  # iterate through the text lines
                 for s in l["spans"]:  # iterate through the text spans
-                    doc_order.append("<p>" + str(s["bbox"]) + " " + str(round(s["size"])) + " " + s["text"] + "</p>")
+                    # {str(s['bbox'])}
+                    doc_order.append(f"<p id=\'{i_text}\'> {str(round(s['size']))} {s['text']} </p>")
                     audio_lines.append(s["text"])
+                    i_text = i_text + 1
 
     file_text = " ".join(doc_order)
-    audio_text = " ".join(audio_lines)
     print(file_text)
 
-    return file_text, audio_text
+    return file_text, audio_lines
 
 
 
