@@ -49,24 +49,9 @@ def upload():
             myobj = gTTS(text=audio_text, lang='en', slow=False)
             myobj.save(os.getcwd() + url_for('static', filename=audiofilename))
         elif ".pdf" in uploaded_file_name:
-            file_text, audio_lines = parse_pdf_file(uploaded_file_path)
+            file_text, audio_lines, naudio = parse_pdf_file(uploaded_file_path)
 
-            number_of_audio_files = len(audio_lines)
-            for i in range(0, number_of_audio_files):
-                audiofilename = f'{i}.mp3'
-                print(audio_lines[i])
-                try:
-                    myobj = gTTS(text=audio_lines[i], lang='en', slow=False)
-                    myobj.save(os.getcwd() + url_for('static', filename=audiofilename))
-                except Exception as e:
-                    print("Exception", e)
-                print("audio", i)
-
-        
-
-        
-
-        return jsonify({"success": True, "audio_file": "1.mp3", "number_of_audio_files": number_of_audio_files, "file_text": file_text})
+        return jsonify({"success": True, "audio_file": "1.mp3", "number_of_audio_files": naudio, "file_text": file_text})
 
     else:
         return jsonify({"success": False})
@@ -100,48 +85,74 @@ def parse_txt_file(uploaded_file_path):
 def parse_pdf_file(uploaded_file_path):
     pdf = pymupdf.open(uploaded_file_path)
 
-    print("pdf file length", len(pdf))
-    page = pdf[0]
-
-    image_files = []
-    images = page.get_images()
-    for image in images:
-        print(image)
-        xref = image[0]
-        base_image = pdf.extract_image(xref)
-        with open(os.getcwd() + url_for('static', filename=image[7]), 'wb') as f:
-            f.write(base_image['image'])
-        image_files.append(image[7])
-
     doc_order = []
     audio_lines = []
 
-    i_text = 0
+    image_files = []
     i_images = 0
-    blocks = page.get_text("dict")["blocks"]
-    for block in blocks:  # iterate through the text blocks\,
-        if "ext" in block:
-            if block["ext"] == "jpeg":
-                doc_order.append(f"<img src=http://127.0.0.1:5000/static/{image_files[i_images]}>")
-                i_images = i_images + 1
-            else:
-                pass
-        elif "lines" in block:
-            for l in block["lines"]:  # iterate through the text lines
-                for s in l["spans"]:  # iterate through the text spans
-                    # {str(s['bbox'])}
-                    doc_order.append(f"<p id=\'{i_text}\'> {str(round(s['size']))} {s['text']} </p>")
-                    audio_lines.append(s["text"])
-                    i_text = i_text + 1
 
-    file_text = " ".join(doc_order)
-    print(file_text)
+    print("pdf file length", len(pdf))
+    for page in pdf[4:7]:
 
-    return file_text, audio_lines
+        images = page.get_images()
+        print("images:", images)
+        for image in images:
+            print(image)
+            xref = image[0]
+            base_image = pdf.extract_image(xref)
+            with open(os.getcwd() + url_for('static', filename=image[7]), 'wb') as f:
+                f.write(base_image['image'])
+            image_files.append(image[7])
+
+        blocks = page.get_text("dict")["blocks"]
+        for block in blocks:  # iterate through the text blocks\,
+            if "ext" in block:
+                if block["ext"] == "jpeg":
+                    doc_order.append([0,i_images])
+                    i_images = i_images + 1
+                else:
+                    pass
+            elif "lines" in block:
+                for l in block["lines"]:  # iterate through the text lines
+                    for s in l["spans"]:  # iterate through the text spans
+                        if round(s['size']) > 8:
+                            doc_order.append([round(s['size']), s['text']])
+
+    doc_order_merged = [[doc_order[0][0], doc_order[0][1]]]
+    j = 0
+    for i in range(1, len(doc_order)):
+        if doc_order[i][0] > 0 and doc_order[i][0] == doc_order[i-1][0] and doc_order[i-1][1] != "/n":
+            doc_order_merged[j][1] = doc_order_merged[j][1] + "/n" + doc_order[i][1]
+        else:
+            doc_order_merged.append([doc_order[i][0], doc_order[i][1]])
+            j = j + 1
+
+    naudio = 0
+    doc_order_html = []
+    for i in range(0, len(doc_order_merged)):
+        if doc_order_merged[i][0] == 0:
+            doc_order_html.append(f"<img src=http://127.0.0.1:5000/static/{image_files[doc_order_merged[i][1]]}>")
+        else:
+            doc_line_html = doc_order_merged[i][1].replace("/n","<br>")
+            try:
+                myobj = gTTS(text=doc_order_merged[i][1].replace("/n"," "), lang='en', slow=False)
+                myobj.save(os.getcwd() + url_for('static', filename=f"{naudio}.mp3"))
+                doc_order_html.append(f"<p id=\'{naudio}\'>{doc_order_merged[i][0]} {doc_line_html} </p>")
+                print("audio", naudio)
+                print(doc_order_merged[i][1])
+                naudio = naudio + 1
+            except Exception as e:
+                doc_order_html.append(f"<p>{doc_order_merged[i][0]} {doc_line_html} </p>")
+                print(doc_order_merged[i][1])
+                print("Exception", e)
 
 
+    file_text = " ".join(doc_order_html)
+
+    return file_text, audio_lines, naudio
 
 
+                    
 
 
 

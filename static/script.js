@@ -31,6 +31,7 @@ function submit_form_request() {
                 document.getElementById("uploaded_file_text").innerHTML = data.file_text;
                 document.getElementById('audio_player').src = "http://127.0.0.1:5000/static/" + data.audio_file +"?q=300"
                 document.getElementById("total_audios").innerHTML = data.number_of_audio_files;
+                document.getElementById("current_audio").innerHTML = String(0);
             } else {
                 document.getElementById("uploaded_file_text").innerHTML = "ERROR";
             }
@@ -50,28 +51,26 @@ function submit_form_request() {
 
 function play_audio() {
 
-    var naudios = 20//document.getElementById("total_audios").innerHTML
+    var naudios = Number(document.getElementById("total_audios").innerHTML);
     
 
-    var i = 0;
+    var i = Number(document.getElementById("current_audio").innerHTML);
     playSnd();
 
     function playSnd() {
         document.getElementById('audio_player').src = "http://127.0.0.1:5000/static/" + String(i) +".mp3?q=300";
         var audio = document.getElementById('audio_player')
-        if (i == 20) return;
+        if (i == naudios) return;
         audio.addEventListener('ended', playSnd);
         if (i > 0) {
             document.getElementById(String(i-1)).style.color = "#ffffff";
         }
         document.getElementById(String(i)).style.color = "#000000";
+        document.getElementById("current_audio").innerHTML = String(i)
         audio.play();
 
         i = i + 1;
     }
-        
-
-    
 }
 
 function pause_audio() {
