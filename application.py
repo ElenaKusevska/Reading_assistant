@@ -117,6 +117,8 @@ def parse_pdf_file(uploaded_file_path):
                     for s in l["spans"]:  # iterate through the text spans
                         if round(s['size']) > 8:
                             doc_order.append([round(s['size']), s['text']])
+                doc_order.append([10001, "endline"])
+            doc_order.append([10001, "endblock"])
 
     doc_order_merged = [[doc_order[0][0], doc_order[0][1]]]
     j = 0
@@ -132,6 +134,8 @@ def parse_pdf_file(uploaded_file_path):
     for i in range(0, len(doc_order_merged)):
         if doc_order_merged[i][0] == 0:
             doc_order_html.append(f"<img src=http://127.0.0.1:5000/static/{image_files[doc_order_merged[i][1]]}>")
+        elif doc_order_merged[i][0] == 10001:
+            doc_order_html.append(f"<p>{doc_order_merged[i][0]} {doc_order_merged[i][1]} </p>")
         else:
             doc_line_html = doc_order_merged[i][1].replace("/n","<br>")
             try:
