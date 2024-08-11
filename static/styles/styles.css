@@ -32,9 +32,9 @@ p {
 
 div {
     font-family: sans-serif;
-    width: 60%; 
+    width: 70%; 
     float: left;
-    margin-left: 20%;
+    margin-left: 15%;
     padding: 1%;
     color: #ffffff;
 }
@@ -55,6 +55,11 @@ div {
 
 .div2::-webkit-scrollbar {
   display: none;
+}
+
+.image {
+    max-width: 100%;
+    height: auto;
 }
 
 .buttons {

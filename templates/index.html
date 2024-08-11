@@ -28,6 +28,8 @@
 
             <button class="buttons" onclick="play_audio();"> Play </button>
             <button class="buttons" onclick="pause_audio();"> Pause </button>
+            <button class="buttons" onclick="forward();"> Forward </button>
+            <button class="buttons" onclick="back();"> Back </button>
 
             <audio hidden src="{{ url_for('static',filename='0.mp3') }}?q={{rq}}" id="audio_player" preload="metadata" controls>
 

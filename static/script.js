@@ -77,3 +77,19 @@ function pause_audio() {
     document.getElementById('audio_player').pause();
 }
 
+function forward() {
+    var current = Number(document.getElementById("current_audio").innerHTML);
+    current = current + 1;
+    document.getElementById("current_audio").innerHTML = String(current)
+    document.getElementById(String(current-1)).style.color = "#ffffff";
+    document.getElementById(String(current)).style.color = "#000000";
+}
+
+function back() {
+    var current = Number(document.getElementById("current_audio").innerHTML);
+    current = current - 1;
+    document.getElementById("current_audio").innerHTML = String(current)
+    document.getElementById(String(current-1)).style.color = "#ffffff";
+    document.getElementById(String(current)).style.color = "#000000";
+}
+
