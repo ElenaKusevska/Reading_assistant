@@ -8,6 +8,8 @@ import time
 from gtts import gTTS
 from PIL import Image
 import pymupdf
+import statistics  
+from statistics import mode
 
 app = Flask(__name__)
 
@@ -100,38 +102,83 @@ def parse_pdf_file(uploaded_file_path):
                     with open(os.getcwd() + url_for('static', filename=f"{i_images}.{block['ext']}"), 'wb') as f:
                         f.write(block['image'])
                     image_files.append(f"{i_images}.{block['ext']}")
-                    doc_order.append([0,i_images])
+                    doc_order.append({
+                        "type": "image", 
+                        "details": [0,i_images]
+                    })
                     i_images = i_images + 1
                 else:
                     pass
             elif "lines" in block:
+                y = 0
+                text = ""
+                font_size = 1
+                block_lines = []
                 for l in block["lines"]:  # iterate through the text lines
                     for s in l["spans"]:  # iterate through the text spans
                         if round(s['size']) > 8:
-                            doc_order.append([round(s['size']), s['text']])
-                doc_order.append([10001, "endline"])
-            doc_order.append([10001, "endblock"])
+                            # if we are on a new line
+                            if round(s["origin"][1]) > y:
+                                if y > 0:
+                                    block_lines.append({
+                                        "font_size": font_size, 
+                                        "x": x, 
+                                        "y": y, 
+                                        "text": text,
+                                        "tab": False
+                                    })
+                                y = round(s["origin"][1])
+                                x = round(s["origin"][0])
+                                text = s['text']
+                                font_size = round(s['size'])
+                            else:
+                                text = text + s['text']
 
-    doc_order_merged = [[doc_order[0][0], doc_order[0][1]]]
-    j = 0
-    for i in range(1, len(doc_order)):
-        if doc_order[i][0] > 0 and doc_order[i][0] == doc_order[i-1][0] and doc_order[i-1][1] != "/n":
-            if len(doc_order[i][1]) > 10:
-                doc_order_merged[j][1] = doc_order_merged[j][1] + "/n" + doc_order[i][1]
-            else:
-                doc_order_merged[j][1] = doc_order_merged[j][1] + doc_order[i][1]
+                block_lines.append({
+                    "font_size": font_size, 
+                    "x": x, 
+                    "y": y, 
+                    "text": text,
+                    "tab": False
+                })
 
-        else:
-            doc_order_merged.append([doc_order[i][0], doc_order[i][1]])
-            j = j + 1
+                # Mark lines with a tab
+                xs = [line["x"] for line in block_lines]
+                if len(xs) > 2:
+                    mode_x = mode(xs)
+                    for line in block_lines:
+                        if line["x"] > mode_x:
+                            line["tab"] = True
+                        
+
+                doc_order.append({"type": "text", "details": block_lines})
+
+
+    doc_order_merged = []
+    for block in doc_order:
+        print("=============================================")
+        print(block)
+        print("=============================================")
+        if block["type"] == "text":
+            block_text = ""
+            for line in block["details"]:
+                print(line)
+                if not line["tab"]:
+                    block_text = block_text + "/n" + line["text"]
+                else:
+                    doc_order_merged.append([line["font_size"], block_text])
+                    block_text = line["text"]
+            if block_text != "":
+                doc_order_merged.append([line["font_size"], block_text])
+        elif block["type"] == "image":
+            doc_order_merged.append([0,block["details"][1]])
+    
 
     naudio = 0
     doc_order_html = []
     for i in range(0, len(doc_order_merged)):
         if doc_order_merged[i][0] == 0:
             doc_order_html.append(f'<img src=http://127.0.0.1:5000/static/{image_files[doc_order_merged[i][1]]} class="image">')
-        elif doc_order_merged[i][0] == 10001:
-            doc_order_html.append(f"<p>{doc_order_merged[i][0]} {doc_order_merged[i][1]} </p>")
         else:
             doc_order_merged[i][1] = doc_order_merged[i][1].replace("ﬁ/n","fi")
             doc_line_html = doc_order_merged[i][1].replace("/n","<br>")
@@ -144,7 +191,7 @@ def parse_pdf_file(uploaded_file_path):
                 naudio = naudio + 1
             except Exception as e:
                 doc_order_html.append(f"<p>{doc_order_merged[i][0]} {doc_line_html} </p>")
-                print(doc_order_merged[i][1])
+                print(doc_order_merged[i])
                 print("Exception", e)
 
 
