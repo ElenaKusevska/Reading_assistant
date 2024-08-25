@@ -93,7 +93,7 @@ def parse_pdf_file(uploaded_file_path):
     image_files = []
     i_images = 0
 
-    for page in pdf[4:-2]:
+    for page in pdf[3:-2]:
         blocks = page.get_text("dict", flags=20)["blocks"]
         for block in blocks:  # iterate through the text blocks\,
             if "ext" in block:
@@ -184,7 +184,8 @@ def parse_pdf_file(uploaded_file_path):
         if doc_order_merged[i][0] == 0:
             doc_order_html.append(f'<img src=http://127.0.0.1:5000/static/{image_files[doc_order_merged[i][1]]} class="image">')
         else:
-            doc_order_merged[i][1] = doc_order_merged[i][1].replace(" ﬁ ","fi").replace(" fi ","fi")
+            doc_order_merged[i][1] = doc_order_merged[i][1].replace(" fi ","fi").replace(" fl ","fl")
+            doc_order_merged[i][1] = doc_order_merged[i][1].replace(" . ",".").replace(" , ",",")
             doc_line_html = doc_order_merged[i][1].replace("/n","<br>")
             try:
                 myobj = gTTS(text=doc_order_merged[i][1].replace("/n"," ").replace("<b>","").replace("</b>",""), 
