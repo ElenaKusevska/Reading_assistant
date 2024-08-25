@@ -93,9 +93,8 @@ def parse_pdf_file(uploaded_file_path):
     image_files = []
     i_images = 0
 
-    print("pdf file length", len(pdf))
-    for page in pdf[0:2]:
-        blocks = page.get_text("dict")["blocks"]
+    for page in pdf[4:-2]:
+        blocks = page.get_text("dict", flags=20)["blocks"]
         for block in blocks:  # iterate through the text blocks\,
             if "ext" in block:
                 if block["ext"] == "jpeg" or block["ext"] == "png":
@@ -116,6 +115,9 @@ def parse_pdf_file(uploaded_file_path):
                 block_lines = []
                 for l in block["lines"]:  # iterate through the text lines
                     for s in l["spans"]:  # iterate through the text spans
+                        print("-------------------------------")
+                        print("flags", s["flags"], s["font"], s["text"])
+                        print("-------------------------------")
                         if round(s['size']) > 8:
                             # if we are on a new line
                             if round(s["origin"][1]) > y:
@@ -131,16 +133,21 @@ def parse_pdf_file(uploaded_file_path):
                                 x = round(s["origin"][0])
                                 text = s['text']
                                 font_size = round(s['size'])
-                            else:
-                                text = text + s['text']
 
-                block_lines.append({
-                    "font_size": font_size, 
-                    "x": x, 
-                    "y": y, 
-                    "text": text,
-                    "tab": False
-                })
+                                if ".B" in s["font"]:
+                                    text = f"<b>{text}</b>"
+                            else:
+                                text = f"{text} {s['text']}"
+                
+                # Add the last span
+                if text != "":
+                    block_lines.append({
+                        "font_size": font_size, 
+                        "x": x, 
+                        "y": y, 
+                        "text": text,
+                        "tab": False
+                    })
 
                 # Mark lines with a tab
                 xs = [line["x"] for line in block_lines]
@@ -156,9 +163,6 @@ def parse_pdf_file(uploaded_file_path):
 
     doc_order_merged = []
     for block in doc_order:
-        print("=============================================")
-        print(block)
-        print("=============================================")
         if block["type"] == "text":
             block_text = ""
             for line in block["details"]:
@@ -180,10 +184,11 @@ def parse_pdf_file(uploaded_file_path):
         if doc_order_merged[i][0] == 0:
             doc_order_html.append(f'<img src=http://127.0.0.1:5000/static/{image_files[doc_order_merged[i][1]]} class="image">')
         else:
-            doc_order_merged[i][1] = doc_order_merged[i][1].replace("ﬁ/n","fi")
+            doc_order_merged[i][1] = doc_order_merged[i][1].replace(" ﬁ ","fi").replace(" fi ","fi")
             doc_line_html = doc_order_merged[i][1].replace("/n","<br>")
             try:
-                myobj = gTTS(text=doc_order_merged[i][1].replace("/n"," "), lang='en', slow=False)
+                myobj = gTTS(text=doc_order_merged[i][1].replace("/n"," ").replace("<b>","").replace("</b>",""), 
+                    lang='en', slow=False)
                 myobj.save(os.getcwd() + url_for('static', filename=f"{naudio}.mp3"))
                 doc_order_html.append(f"<p id=\'{naudio}\'>{doc_order_merged[i][0]} {doc_line_html} </p>")
                 print("audio", naudio)
