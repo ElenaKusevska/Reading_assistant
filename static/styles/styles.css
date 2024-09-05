@@ -46,7 +46,7 @@ div {
 
 .div2 {
     background-color: #945D60;
-    height: 60%;
+    height: 80%;
     overflow: scroll;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
