@@ -22,14 +22,14 @@ function submit_form_request() {
     if (test_submit) {
         // Initialize new request:
         const request = new XMLHttpRequest();
-        request.open('POST', '/')
+        request.open('POST', '/reader/')
 
         // Callback function for when request completes:
         request.onload = function() {
             const data = JSON.parse(request.responseText);
             if (data.success) {
                 document.getElementById("uploaded_file_text").innerHTML = data.file_text;
-                document.getElementById('audio_player').src = "http://127.0.0.1:5000/static/" + data.audio_file +"?q=300"
+                document.getElementById('audio_player').src = "http://127.0.0.1:5000/reader/static/" + data.audio_file +"?q=300"
                 document.getElementById("total_audios").innerHTML = data.number_of_audio_files;
                 document.getElementById("current_audio").innerHTML = String(0);
             } else {
@@ -58,7 +58,7 @@ function play_audio() {
     playSnd();
 
     function playSnd() {
-        document.getElementById('audio_player').src = "http://127.0.0.1:5000/static/" + String(i) +".mp3?q=300";
+        document.getElementById('audio_player').src = "http://127.0.0.1:5000/reader/static/" + String(i) +".mp3?q=300";
         var audio = document.getElementById('audio_player')
         if (i == naudios) return;
         audio.addEventListener('ended', playSnd);
