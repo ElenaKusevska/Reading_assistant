@@ -23,25 +23,26 @@ def index():
 @reader.route("/", methods=['POST'])
 def upload():
 
-    # Get file info from HTML form:
     uploaded_file = request.files['file']
 
-    # Save and read file:
     if (uploaded_file.filename != ''):
 
         uploaded_file_path = save_uploaded_file(uploaded_file)
 
         if ".txt" in uploaded_file.filename:
+            # logic for txt files not implemented yet
             file_text, audio_text = parse_txt_file(uploaded_file_path)
-
-            number_of_audio_files = 1
-            audiofilename = '1.mp3'
-            myobj = gTTS(text=audio_text, lang='en', slow=False)
-            myobj.save(os.getcwd() + url_for('static', filename=audiofilename))
+            return jsonify({"success": False})
+            
         elif ".pdf" in uploaded_file.filename:
             file_text, audio_lines, naudio = parse_pdf_file(uploaded_file_path)
 
-        return jsonify({"success": True, "audio_file": "1.mp3", "number_of_audio_files": naudio, "file_text": file_text})
+            return jsonify({
+                "success": True, 
+                "audio_file": "1.mp3", 
+                "number_of_audio_files": naudio, 
+                "file_text": file_text
+            })
 
     else:
         return jsonify({"success": False})
