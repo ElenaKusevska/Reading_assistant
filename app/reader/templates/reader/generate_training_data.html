@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>test upload</title>
+        <link href="{{ url_for('.static',filename='styles/styles.css') }}?q={{rq}}" 
+        rel="stylesheet" type="text/css"/>
+        <script src="{{ url_for('.static',filename='script.js') }}?q={{rq}}"/></script>
+    </head>
+
+    <body>   
+        <h1> - - - Reading assistant for txt and pdf files - - - </h1>
+
+        <div class="div1">
+            <button class="buttons" onclick="click_function();"> Choose File </button> 
+            <p class="p1" id="uploaded_file_name"> 
+                {{uploaded_file_name}} </p> 
+
+            <form enctype=multipart/form-data method="post" name=form1
+            onsubmit="return submit_pdf_for_training();">
+                <input type=file name="file" hidden
+                id="get_file" accept=".txt,.pdf" 
+                onchange="on_file_upload();">
+                <input type="submit" 
+                value="Upload File" name="submit">
+            </form>
+        </div>
+
+        <div>
+        <form enctype=multipart/form-data method="post" name=form2
+            onsubmit="return push_pdf_training_data();">
+            <textarea class="div2b" type="text" name="csv_data"
+            id="csv_data" rows="20"> CSV data goes here </textarea>
+            <input type="submit" 
+            value="Push Data" name="submit">
+        </form>
+    </div>
+
+
+    </body>
+</html>

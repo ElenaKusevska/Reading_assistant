@@ -53,6 +53,16 @@ div {
     font-family: Avantgarde, TeX Gyre Adventor, URW Gothic L, sans-serif;
 }
 
+.div2b {
+    width: 100%;
+    background-color: #945D60;
+    color: #000000;
+    overflow: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    font-family: Avantgarde, TeX Gyre Adventor, URW Gothic L, sans-serif;
+}
+
 .div2::-webkit-scrollbar {
   display: none;
 }
