@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>test upload</title>
+        <link href="{{ url_for('.static',filename='styles/styles.css') }}?q={{rq}}" 
+        rel="stylesheet" type="text/css"/>
+        <script src="{{ url_for('.static',filename='script.js') }}?q={{rq}}"/></script>
+    </head>
+
+    <body>   
+        <h1> - - - Reading assistant for txt and pdf files - - - </h1>
+
+        <div class="div1">
+            <button class="buttons" onclick="click_function();"> Choose File </button> 
+            <p class="p1" id="uploaded_file_name"> 
+                {{uploaded_file_name}} </p> 
+
+            <form enctype=multipart/form-data method="post" name=form1
+            onsubmit="return submit_form_request();">
+                <input type=file name="file" hidden
+                id="get_file" accept=".txt,.pdf" 
+                onchange="on_file_upload();">
+                <input type="submit" 
+                value="Upload File" name="submit">
+            </form>
+
+            <p class="p1"><span id="current_audio">0</span>/<span id="total_audios">0</span></p>
+
+            <button class="buttons" onclick="play_audio();"> Play </button>
+            <button class="buttons" onclick="pause_audio();"> Pause </button>
+            <button class="buttons" onclick="forward();"> Forward </button>
+            <button class="buttons" onclick="back();"> Back </button>
+
+            <audio hidden src="{{ url_for('static',filename='0.mp3') }}?q={{rq}}" id="audio_player" preload="metadata" controls>
+
+            </audio>
+        </div>
+
+        <div class="div2">
+            <p id="uploaded_file_text"> File text goes here </p>
+        </div>
+    </body>
+</html>

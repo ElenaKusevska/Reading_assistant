@@ -10,7 +10,6 @@ def parse_pdf_file(uploaded_file_path):
     pdf = pymupdf.open(uploaded_file_path)
 
     doc_order = []
-    audio_lines = []
 
     image_files = []
     i_images = 0
@@ -88,7 +87,6 @@ def parse_pdf_file(uploaded_file_path):
         if block["type"] == "text":
             block_text = ""
             for line in block["details"]:
-                print(line)
                 if not line["tab"]:
                     block_text = block_text + "/n" + line["text"]
                 else:
@@ -98,7 +96,13 @@ def parse_pdf_file(uploaded_file_path):
                 doc_order_merged.append([line["font_size"], block_text])
         elif block["type"] == "image":
             doc_order_merged.append([0,block["details"][1]])
-    
+
+    print(doc_order_merged)
+
+    return doc_order_merged, image_files
+
+
+def document_blocks_to_audio(doc_order_merged, image_files):
 
     naudio = 0
     doc_order_html = []
@@ -125,4 +129,4 @@ def parse_pdf_file(uploaded_file_path):
 
     file_text = " ".join(doc_order_html)
 
-    return file_text, audio_lines, naudio
+    return file_text, naudio
