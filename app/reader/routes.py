@@ -48,14 +48,14 @@ def upload():
         return jsonify({"success": False})
 
 
-@reader.route("/generate_pdf_training_data", methods=['GET'])
-def generate_training_data():
+@reader.route("/pdf_training_data", methods=['GET'])
+def pdf_training_data():
     rq = random.randint(0,10000)
     return render_template("reader/generate_training_data.html", rq=rq)
 
 
-@reader.route("/generate_pdf_training_data", methods=['POST'])
-def generate_training_data_upload():
+@reader.route("/pdf_training_data", methods=['POST'])
+def pdf_training_data_upload():
 
     uploaded_file = request.files['file']
 
@@ -63,12 +63,7 @@ def generate_training_data_upload():
 
         uploaded_file_path = save_uploaded_file(uploaded_file)
 
-        if ".txt" in uploaded_file.filename:
-            # logic for txt files not implemented yet
-            file_text, audio_text = parse_txt_file(uploaded_file_path)
-            return jsonify({"success": False})
-            
-        elif ".pdf" in uploaded_file.filename:
+        if ".pdf" in uploaded_file.filename:
             doc_order_merged, image_files = parse_pdf_file(uploaded_file_path)
             file_text, naudio = document_blocks_to_audio(doc_order_merged, image_files)
 
