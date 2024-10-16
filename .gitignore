@@ -5,6 +5,8 @@
 venv/
 *.mp3
 *.jpg
+*.png
+*.pdf
 *.jpeg
 *ipynb_checkpoints/
 **ipynb_checkpoints/
